@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "description": "Classification categories for intelligent routing",
+  "categories": {
+    "heartbeat": {
+      "model": "minimax",
+      "priority": 100,
+      "description": "Background maintenance checks",
+      "triggers": {
+        "keywords": [
+          "read heartbeat.md if it exists",
+          "heartbeat_ok",
+          "check_reminders_silent",
+          "heartbeat maintenance"
+        ]
+      },
+      "enableThinking": false
+    },
+    "vision": {
+      "model": "kimi",
+      "priority": 90,
+      "description": "Image/PDF/UI analysis",
+      "triggers": {
+        "keywords": [
+          "screenshot",
+          "image",
+          "images",
+          "pdf",
+          "diagram",
+          "ui",
+          "wireframe",
+          "attachment",
+          "attachments",
+          "photo",
+          "scan"
+        ],
+        "patterns": [
+          "!\\[[^\\]]*\\]\\([^\\)]*\\)",
+          "\\[[^\\]]+\\]\\([^\\)]*\\.pdf(?:\\)|\\?)",
+          "\\b\\S+\\.(png|jpe?g|gif|webp|bmp|tiff|heic|pdf)\\b"
+        ]
+      },
+      "enableThinking": true
+    },
+    "recall": {
+      "model": "kimi",
+      "priority": 80,
+      "description": "Context recovery and prior conversation",
+      "triggers": {
+        "keywords": [
+          "what were we talking about",
+          "what were we doing",
+          "what did we just discuss",
+          "remind me what",
+          "recap what",
+          "previous context",
+          "prior context",
+          "earlier context"
+        ]
+      },
+      "enableThinking": true
+    },
+    "complex": {
+      "model": "kimi",
+      "priority": 70,
+      "description": "Architecture, planning, deep reasoning",
+      "triggers": {
+        "keywords": [
+          "architecture",
+          "system design",
+          "design doc",
+          "migration plan",
+          "multi-file",
+          "refactor entire",
+          "cross-project",
+          "tradeoff",
+          "trade-off",
+          "deep analysis",
+          "step-by-step plan",
+          "long-form",
+          "strategic",
+          "root cause",
+          "underlying cause",
+          "investigate",
+          "diagnose",
+          "optimize",
+          "consolidate",
+          "make it perfect",
+          "no mistakes",
+          "comprehensive",
+          "end-to-end"
+        ],
+        "thresholds": {
+          "minCodeFences": 2,
+          "minFilePaths": 2,
+          "minTokens": 360,
+          "minWords": 220
+        }
+      },
+      "enableThinking": true
+    },
+    "coding": {
+      "model": "minimax",
+      "priority": 60,
+      "description": "Code edits, debugging, tool workflows",
+      "triggers": {
+        "keywords": [
+          "code",
+          "coding",
+          "debug",
+          "fix",
+          "error",
+          "stack trace",
+          "traceback",
+          "function",
+          "class",
+          "method",
+          "script",
+          "api",
+          "endpoint",
+          "database",
+          "sql",
+          "query",
+          "lint",
+          "test",
+          "build",
+          "compile",
+          "repo",
+          "git",
+          "deploy"
+        ],
+        "thresholds": {
+          "minCodeFences": 1,
+          "minFilePaths": 1
+        }
+      },
+      "enableThinking": false
+    },
+    "simple": {
+      "model": "minimax",
+      "priority": 50,
+      "description": "Short chat, pings, status checks",
+      "triggers": {
+        "patterns": [
+          "^hi+$",
+          "^hello+$",
+          "^hey+$",
+          "^yo+$",
+          "^ok(?:ay)?[.!?]*$",
+          "^thanks?(?: you)?[.!?]*$",
+          "^ping[.!?]*$",
+          "^status[.!?]*$",
+          "^test(?:ing)?[.!?]*$"
+        ],
+        "thresholds": {
+          "maxWords": 6,
+          "maxTokens": 120
+        }
+      },
+      "enableThinking": false
+    }
+  },
+  "fallback": {
+    "model": "minimax",
+    "description": "Default category when no match"
+  }
+}

@@ -1,59 +1,94 @@
 # Model Router Intelligent
 
-Cost-optimizing model router for OpenClaw with OpenRouter. Dynamically routes prompts to the cheapest appropriate model based on task complexity.
+Cost-optimizing model router for OpenClaw. Dynamically routes prompts to the cheapest appropriate model based on task complexity.
 
 ## Quick Install
 
 ```bash
-# 1. Copy skill to workspace
-mkdir -p ~/.openclaw/workspace/skills/model-router-intelligent
-cp -r /path/to/skill/* ~/.openclaw/workspace/skills/model-router-intelligent/
+# Clone or copy to workspace
+cp -r model-router-intelligent/ ~/.openclaw/workspace/skills/
 
-# 2. Link extension
+# Link extension (for automatic routing)
 mkdir -p ~/.openclaw/extensions/model-router
 ln -sf ../workspace/skills/model-router-intelligent/extension/index.js ~/.openclaw/extensions/model-router/index.js
 
-# 3. Enable plugin in openclaw.json
+# Copy config to extension
+mkdir -p ~/.openclaw/extensions/model-router/{lib,config}
+cp ~/.openclaw/workspace/skills/model-router-intelligent/lib/classifier.js ~/.openclaw/extensions/model-router/lib/
+cp ~/.openclaw/workspace/skills/model-router-intelligent/config/*.json ~/.openclaw/extensions/model-router/config/
+
+# Enable plugin
 openclaw config patch --json '{"plugins":{"entries":{"model-router":{"enabled":true}}}}'
+```
+
+## Usage
+
+### As Python Skill (Recommended)
+
+```python
+from skills.model_router_intelligent.classifier import route, should_use_cheap_model
+
+# Get routing decision
+decision = route("fix this bug")
+print(decision)
+# {'type': 'coding', 'model_key': 'minimax', 'model_id': 'minimax/minimax-m2.5', ...}
+
+# Quick check
+if should_use_cheap_model("hi"):
+    print("Use MiniMax")
+else:
+    print("Use Kimi")
+```
+
+### Via CLI
+
+```bash
+# Test a prompt
+python -m skills.model_router_intelligent.classifier "fix this bug"
+
+# List models
+python -m skills.model_router_intelligent.classifier --list
+
+# Check if cheap model
+python -m skills.model_router_intelligent.classifier --cheap "hi"
 ```
 
 ## Configuration
 
-### Adding New Models
+### Adding Models
 
 Edit `config/models.json`:
 
 ```json
 {
   "models": {
-    "my-model": {
+    "newmodel": {
       "id": "provider/model-id",
       "name": "Display Name",
       "provider": "openrouter",
       "cost": { "input": 0.10, "output": 0.10, "unit": "per-1m-tokens" },
       "context": 32000,
-      "strengths": ["coding", "reasoning"],
-      "aliases": ["alias1", "alias2"],
+      "strengths": ["coding"],
+      "aliases": ["nm", "newm"],
       "enabled": true
     }
   }
 }
 ```
 
-### Adding New Categories
+### Adding Categories
 
-Edit `config/categories.json`. Categories are matched by priority (highest first):
+Edit `config/categories.json`:
 
 ```json
 {
   "categories": {
     "my-category": {
-      "model": "my-model",
+      "model": "minimax",
       "priority": 75,
-      "description": "What this category handles",
       "triggers": {
-        "keywords": ["keyword1", "keyword2"],
-        "patterns": ["^regex_pattern$"],
+        "keywords": ["keyword1"],
+        "patterns": ["^regex$"],
         "thresholds": { "minTokens": 500 }
       },
       "enableThinking": false
@@ -62,68 +97,40 @@ Edit `config/categories.json`. Categories are matched by priority (highest first
 }
 ```
 
-### Disabling a Model
-
-Set `enabled: false` in `config/models.json`:
-
-```json
-{
-  "models": {
-    "kimi": {
-      "enabled": false
-    }
-  }
-}
-```
-
 ## Manual Override
-
-In any prompt, specify model explicitly:
 
 ```
 --model minimax   # Force MiniMax
 --model kimi     # Force Kimi
---model deepseek  # Any model alias
 ```
 
-## Debug Mode
+## Debug
 
 ```bash
 OPENCLAW_MODEL_ROUTER_DEBUG=1 openclaw gateway restart
 ```
 
-Check logs:
+## Files
 
-```bash
-tail -f ~/.openclaw/logs/model-router.log
 ```
-
-## Test Routing
-
-```bash
-# Test a prompt
-node ~/.openclaw/workspace/skills/model-router-intelligent/scripts/router.js "fix this bug"
-
-# Interactive mode
-node ~/.openclaw/workspace/skills/model-router-intelligent/scripts/router.js --interactive
-
-# List models
-node ~/.openclaw/workspace/skills/model-router-intelligent/scripts/router.js --list
+model-router-intelligent/
+├── config/
+│   ├── models.json        # Model definitions
+│   └── categories.json    # Classification rules
+├── python/
+│   ├── __init__.py        # Skill entry point
+│   ├── classifier.py      # Core routing logic
+│   └── config/            # Local config copy
+├── lib/
+│   └── classifier.js      # JS version (for extension)
+├── extension/
+│   └── index.js           # Gateway plugin
+├── README.md
+└── SKILL.md
 ```
-
-## Default Categories
-
-| Category | Model | Triggers |
-|----------|-------|----------|
-| heartbeat | MiniMax | maintenance checks |
-| vision | Kimi | images, PDFs, UI |
-| recall | Kimi | context recovery |
-| complex | Kimi | architecture, planning |
-| coding | MiniMax | code edits, debugging |
-| simple | MiniMax | short chat, pings |
 
 ## Requirements
 
 - OpenClaw 2026.2+
-- OpenRouter API key in environment
-- Node.js 18+
+- OpenRouter API key
+- Python 3.8+

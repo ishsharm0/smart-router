@@ -1,78 +1,45 @@
 ---
 name: model-router-intelligent
-description: Intelligent cost-optimizing model router for OpenClaw with OpenRouter. Dynamically routes prompts to the cheapest appropriate model based on task complexity.
+description: Intelligent cost-optimizing model router for OpenClaw. Routes prompts to optimal models based on task complexity.
 ---
 
 # Intelligent Model Router
 
-Config-driven model routing for OpenClaw with OpenRouter. Routes prompts to optimal models based on task classification.
+Python-based model routing skill for OpenClaw. Provides intelligent cost-optimized routing between OpenRouter models.
 
-## Files
+## Quick Use
 
-```
-model-router-intelligent/
-├── config/
-│   ├── models.json        # Model definitions (id, cost, aliases)
-│   └── categories.json    # Classification rules & priorities
-├── lib/
-│   └── classifier.js      # Core routing logic (shared)
-├── extension/
-│   └── index.js           # OpenClaw plugin
-├── scripts/
-│   └── router.js          # CLI for testing
-├── README.md              # Installation guide
-└── SKILL.md              # This file
+```python
+from skills.model_router_intelligent.classifier import route, should_use_cheap_model
+
+# Classify a prompt
+result = route("fix this bug")
+# -> {'type': 'coding', 'model_key': 'minimax', 'model_id': '...', 'reason': 'coding_keyword'}
+
+# Quick check
+if should_use_cheap_model("hello"):
+    print("Use MiniMax")
 ```
 
-## How It Works
+## Default Categories
 
-1. Prompt arrives at `before_model_resolve` hook
-2. Classifier checks explicit override (`--model minimax`)
-3. Otherwise, matches against categories (priority order)
-4. Returns provider + model override
+| Category | Model | Triggers |
+|----------|-------|----------|
+| heartbeat | MiniMax | maintenance |
+| vision | Kimi | images, PDFs |
+| recall | Kimi | context recovery |
+| complex | Kimi | architecture, planning |
+| coding | MiniMax | code edits |
+| simple | MiniMax | short chat |
 
-## Categories (Priority Order)
+## Configuration
 
-1. **heartbeat** → MiniMax (maintenance)
-2. **vision** → Kimi (images/PDFs)
-3. **recall** → Kimi (context recovery)
-4. **complex** → Kimi (architecture/planning)
-5. **coding** → MiniMax (code/tool work)
-6. **simple** → MiniMax (short chat)
-7. **fallback** → MiniMax
+Edit `config/models.json` to add/modify models.
+Edit `config/categories.json` to add/modify classification rules.
 
-## Customization
-
-### Add a Model
-
-Edit `config/models.json`:
-
-```json
-"newmodel": {
-  "id": "provider/newmodel",
-  "cost": { "input": 0.10, "output": 0.10 },
-  "aliases": ["nm", "newm"]
-}
-```
-
-### Add a Category
-
-Edit `config/categories.json`. Add entry with:
-- `model`: model key from models.json
-- `priority`: higher = checked first
-- `triggers.keywords`: array of matching strings
-- `triggers.patterns`: array of regex strings
-- `triggers.thresholds`: min/max tokens/words/code fences
-
-## Usage
-
-- Plugin auto-loads if enabled in openclaw.json
-- Manual override: `--model minimax` or `--model kimi`
-- Test: `node scripts/router.js "your prompt"`
-
-## Debug
+## Testing
 
 ```bash
-OPENCLAW_MODEL_ROUTER_DEBUG=1 openclaw gateway restart
-tail -f ~/.openclaw/logs/model-router.log
+python -m skills.model_router_intelligent.classifier "your prompt"
+python -m skills.model_router_intelligent.classifier --list
 ```
