@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "description": "Model definitions for intelligent routing",
+  "models": {
+    "minimax": {
+      "id": "minimax/minimax-m2.5",
+      "name": "MiniMax M2.5",
+      "provider": "openrouter",
+      "cost": {
+        "input": 0.15,
+        "output": 0.15,
+        "unit": "per-1m-tokens"
+      },
+      "context": 28000,
+      "strengths": ["coding", "tool-use", "fast-response", "low-latency"],
+      "aliases": ["minimax", "m2.5", "minimax-m2.5", "cheap", "fast", "simple", "coding", "heartbeat"]
+    },
+    "kimi": {
+      "id": "moonshotai/kimi-k2.5",
+      "name": "Kimi K2.5",
+      "provider": "openrouter",
+      "cost": {
+        "input": 0.30,
+        "output": 1.50,
+        "unit": "per-1m-tokens"
+      },
+      "context": 128000,
+      "strengths": ["complex-reasoning", "multimodal", "large-context", "vision"],
+      "aliases": ["kimi", "k2.5", "k2p5", "moonshotai/kimi-k2.5", "complex", "vision", "recall"]
+    },
+    "deepseek": {
+      "id": "deepseek/deepseek-chat",
+      "name": "DeepSeek Chat",
+      "provider": "openrouter",
+      "cost": {
+        "input": 0.04,
+        "output": 0.14,
+        "unit": "per-1m-tokens"
+      },
+      "context": 64000,
+      "strengths": ["coding", "math", "ultra-cheap"],
+      "aliases": ["deepseek", "deepseek-chat", "cheap2"],
+      "enabled": false
+    },
+    "claude": {
+      "id": "anthropic/claude-3.5-sonnet",
+      "name": "Claude 3.5 Sonnet",
+      "provider": "openrouter",
+      "cost": {
+        "input": 3.00,
+        "output": 15.00,
+        "unit": "per-1m-tokens"
+      },
+      "context": 200000,
+      "strengths": ["writing", "analysis", "safety", "high-quality"],
+      "aliases": ["claude", "claude-sonnet", "sonnet", "premium"],
+      "enabled": false
+    }
+  },
+  "defaults": {
+    "fallback": "minimax",
+    "explicitOverride": true
+  }
+}
