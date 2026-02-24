@@ -140,7 +140,8 @@
         "thresholds": {
           "maxWords": 8,
           "maxTokens": 140
-        }
+        },
+        "keywords": ["hi", "hey", "hello", "yo", "ok", "thanks", "ping", "status"]
       }
     }
   },
