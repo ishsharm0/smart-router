@@ -1,5 +1,5 @@
 """
-Core classifier library for model-router-intelligent.
+Core classifier library for smart-router.
 Config-driven routing logic - shared between skill and extension.
 """
 

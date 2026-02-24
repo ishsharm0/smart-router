@@ -1,45 +1,76 @@
 ---
-name: model-router-intelligent
-description: Intelligent cost-optimizing model router for OpenClaw. Routes prompts to optimal models based on task complexity.
+name: smart-router
+description: Cost-optimizing model router. Routes prompts to optimal models (MiniMax for simple, Kimi for complex).
 ---
 
-# Intelligent Model Router
+# Smart Router
 
-Python-based model routing skill for OpenClaw. Provides intelligent cost-optimized routing between OpenRouter models.
+Intelligent model routing based on task complexity. Saves costs by using cheap models (MiniMax) for simple tasks, expensive models (Kimi) only when needed.
 
-## Quick Use
+## For Agents
+
+### Import
 
 ```python
-from skills.model_router_intelligent.classifier import route, should_use_cheap_model
-
-# Classify a prompt
-result = route("fix this bug")
-# -> {'type': 'coding', 'model_key': 'minimax', 'model_id': '...', 'reason': 'coding_keyword'}
-
-# Quick check
-if should_use_cheap_model("hello"):
-    print("Use MiniMax")
+from skills.smart_router.classifier import route, classify, should_use_cheap_model
 ```
 
-## Default Categories
+### Functions
 
-| Category | Model | Triggers |
-|----------|-------|----------|
-| heartbeat | MiniMax | maintenance |
-| vision | Kimi | images, PDFs |
-| recall | Kimi | context recovery |
-| complex | Kimi | architecture, planning |
-| coding | MiniMax | code edits |
-| simple | MiniMax | short chat |
+| Function | Returns | Description |
+|----------|---------|-------------|
+| `route(prompt)` | dict | Full routing decision with model_id |
+| `classify(prompt)` | dict | Category + reason + thinking setting |
+| `should_use_cheap_model(prompt)` | bool | True if should use MiniMax |
+
+### Response Format
+
+```python
+result = route("fix this bug in auth.py")
+
+{
+  "type": "coding",                          # matched category
+  "model_key": "minimax",                    # model identifier
+  "model_id": "minimax/minimax-m2.5",        # full model ID for API
+  "reason": "coding_keyword",                # what triggered match
+  "enable_thinking": false                   # thinking on/off for this category
+}
+```
+
+### Explicit Override
+
+Users can force a model with `--model=<name>`:
+- `--model=kimi` → Uses Kimi
+- `--model=minimax` → Uses MiniMax
+- `--model=claude` → Uses Claude (if enabled)
+
+## Categories (Priority Order)
+
+| Priority | Category | Model | Keywords | Thinking |
+|----------|----------|-------|----------|----------|
+| 100 | heartbeat | MiniMax | heartbeat maintenance, check_reminders_silent | ❌ |
+| 90 | vision | Kimi | image, pdf, screenshot, diagram, ui | ✅ |
+| 85 | recall | Kimi | what were we talking about, prior context | ✅ |
+| 70 | coding | MiniMax | code, fix, debug, function, class, api, git | ❌ |
+| 60 | complex | Kimi | architecture, system design, multi-file, 700+ tokens | ✅ |
+| 50 | simple | MiniMax | hi, ok, ping, status (<8 words) | ❌ |
+
+## Thinking Control
+
+- **disable thinking** (`enableThinking: false`): coding, simple, heartbeat — saves tokens
+- **enable thinking** (`enableThinking: true`): vision, recall, complex — needs reasoning
 
 ## Configuration
 
-Edit `config/models.json` to add/modify models.
-Edit `config/categories.json` to add/modify classification rules.
+Models: `config/models.json`
+Categories: `config/categories.json`
 
 ## Testing
 
 ```bash
-python -m skills.model_router_intelligent.classifier "your prompt"
-python -m skills.model_router_intelligent.classifier --list
+# Test a prompt
+python3 -m python.classifier "fix this bug"
+
+# List models
+python3 -m python.classifier --list
 ```

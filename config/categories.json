@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Classification categories for intelligent routing",
   "categories": {
     "heartbeat": {
@@ -45,8 +45,8 @@
     },
     "recall": {
       "model": "kimi",
-      "priority": 80,
-      "description": "Context recovery and prior conversation",
+      "priority": 85,
+      "description": "Context recovery and prior conversation reconstruction",
       "triggers": {
         "keywords": [
           "what were we talking about",
@@ -56,77 +56,15 @@
           "recap what",
           "previous context",
           "prior context",
-          "earlier context"
+          "earlier context",
+          "underlying cause"
         ]
-      },
-      "enableThinking": true
-    },
-    "complex": {
-      "model": "kimi",
-      "priority": 70,
-      "description": "Architecture, planning, deep reasoning, analysis",
-      "triggers": {
-        "keywords": [
-          "architecture",
-          "system design",
-          "design doc",
-          "migration plan",
-          "multi-file",
-          "refactor",
-          "restructure",
-          "reorganiz",
-          "cross-project",
-          "tradeoff",
-          "trade-off",
-          "deep analysis",
-          "step-by-step plan",
-          "long-form",
-          "strategic",
-          "root cause",
-          "underlying cause",
-          "investigate",
-          "diagnose",
-          "consolidate",
-          "make it perfect",
-          "no mistakes",
-          "comprehensive",
-          "end-to-end",
-          "analyze",
-          "analysis",
-          "review",
-          "evaluate",
-          "assess",
-          "improve",
-          "enhance",
-          "design",
-          "create from scratch",
-          "build from",
-          "implement",
-          "develop",
-          "rewrite",
-          "convert",
-          "modular",
-          "modularize",
-          "pluggable",
-          "extensible"
-        ],
-        "patterns": [
-          "^make it more",
-          "^rewrite",
-          "^convert"
-        ],
-        "thresholds": {
-          "minCodeFences": 2,
-          "minFilePaths": 2,
-          "minTokens": 360,
-          "minWords": 220
-        }
       },
       "enableThinking": true
     },
     "coding": {
       "model": "minimax",
-      "priority": 60,
+      "priority": 70,
       "description": "Code edits, debugging, tool workflows",
       "triggers": {
         "keywords": [
@@ -161,6 +99,33 @@
       },
       "enableThinking": false
     },
+    "complex": {
+      "model": "kimi",
+      "priority": 60,
+      "description": "Architecture and deep multi-step reasoning",
+      "triggers": {
+        "keywords": [
+          "architecture",
+          "system design",
+          "design doc",
+          "migration plan",
+          "cross-project",
+          "tradeoff",
+          "trade-off",
+          "root cause",
+          "comprehensive",
+          "end-to-end",
+          "multi-file"
+        ],
+        "thresholds": {
+          "minCodeFences": 3,
+          "minFilePaths": 3,
+          "minTokens": 700,
+          "minWords": 320
+        }
+      },
+      "enableThinking": true
+    },
     "simple": {
       "model": "minimax",
       "priority": 50,
@@ -178,8 +143,8 @@
           "^test(?:ing)?[.!?]*$"
         ],
         "thresholds": {
-          "maxWords": 6,
-          "maxTokens": 120
+          "maxWords": 8,
+          "maxTokens": 140
         }
       },
       "enableThinking": false
