@@ -4,20 +4,18 @@
 
 ## What This Skill Does
 
-The **Smart Router** analyzes each prompt and selects the best model:
+The **Smart Router** analyzes each prompt and selects the best model for the task:
 
 | Task Type | Model | Why |
 |-----------|-------|-----|
-| Heartbeat/maintenance | MiniMax | Cheapest, no reasoning needed |
-| Simple chat (hi, ok, ping) | MiniMax | Fast, cheap |
-| Code editing | MiniMax | Great at code, cheap |
-| Vision (images, PDFs) | Kimi | Multimodal capability |
-| Context recall | Kimi | Large context window |
-| Complex reasoning | Kimi | Better reasoning |
+| Background maintenance | Default model | Lightweight checks |
+| Simple chat | Default model | Fast, cheap responses |
+| Code editing | Strong model | Best for code tasks |
+| Vision/Images | Multimodal model | Image understanding |
+| Context recall | Large context model | Long conversation memory |
+| Complex reasoning | Advanced model | Deep reasoning capability |
 
-**Cost savings:** Uses MiniMax ($0.15/M) for 80%+ of prompts, reserves Kimi ($0.30-$1.50/M) only when needed.
-
-> **Note:** Thinking/reasoning is controlled globally by `agents.defaults.thinkingDefault` in openclaw.json (currently: off). This skill handles model selection only.
+**Goal:** Use cheaper/faster models for simple tasks, reserve expensive models only when needed.
 
 ---
 
@@ -34,10 +32,9 @@ decision = route("fix this bug in auth.py")
 # Output:
 # {
 #   "type": "coding",           # category matched
-#   "model_key": "minimax",     # which model to use
+#   "model_key": "minimax",      # which model to use
 #   "model_id": "minimax/minimax-m2.5",
-#   "reason": "coding_keyword", # what triggered this
-#   "enable_thinking": false    # thinking on/off for this category
+#   "reason": "coding_keyword",  # what triggered this
 # }
 ```
 
@@ -60,12 +57,6 @@ Users can force a specific model:
 --model=claude
 ```
 
-### Thinking Control
-
-Each category has `enableThinking`:
-- `false`: coding, simple, heartbeat (saves tokens)
-- `true`: vision, recall, complex (needs reasoning)
-
 ---
 
 ## For Humans (Installation)
@@ -85,8 +76,8 @@ cp -r smart-router/ ~/.openclaw/workspace/skills/
 The router works as a skill by default. For automatic model selection on every prompt:
 
 ```bash
-# Enable the model-router plugin
-openclaw config patch --json '{"plugins":{"entries":{"model-router":{"enabled":true}}}}'
+# Enable the smart-router plugin
+openclaw config patch --json '{"plugins":{"entries":{"smart-router":{"enabled":true}}}}'
 openclaw gateway restart
 ```
 
@@ -108,6 +99,13 @@ python3 -m python.classifier --list
 ---
 
 ## Configuration
+
+### Default Models (Included)
+
+| Key | Model ID | Strengths |
+|----|---------|-----------|
+| minimax | minimax/minimax-m2.5 | Coding, fast, cheap |
+| kimi | moonshotai/kimi-k2.5 | Vision, reasoning, large context |
 
 ### Add a New Model
 
@@ -142,9 +140,8 @@ Edit `config/categories.json`:
       "priority": 65,
       "description": "Content writing and editing",
       "triggers": {
-        "keywords": ["write", "draft", "edit", "compose", "essay", "article"]
-      },
-      "enableThinking": true
+        "keywords": ["write", "draft", "edit", "compose"]
+      }
     }
   }
 }
@@ -166,10 +163,10 @@ Edit `config/categories.json`:
 
 ```bash
 # Enable debug logging
-OPENCLAW_MODEL_ROUTER_DEBUG=1 openclaw gateway restart
+OPENCLAW_SMART_ROUTER_DEBUG=1 openclaw gateway restart
 
 # Check logs
-openclaw logs | grep ModelRouter
+openclaw logs | grep SmartRouter
 ```
 
 ---
@@ -181,7 +178,7 @@ smart-router/
 ├── SKILL.md              # Agent instructions
 ├── README.md              # This file
 ├── config/
-│   ├── models.json        # Model definitions (MiniMax, Kimi)
+│   ├── models.json        # Model definitions
 │   └── categories.json    # Routing rules
 ├── python/
 │   └── classifier.py      # Core Python implementation

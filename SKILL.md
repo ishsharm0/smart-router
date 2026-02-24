@@ -1,11 +1,11 @@
 ---
 name: smart-router
-description: Cost-optimizing model router. Routes prompts to optimal models (MiniMax for simple, Kimi for complex).
+description: Cost-optimizing model router. Routes prompts to optimal models based on task complexity.
 ---
 
 # Smart Router
 
-Intelligent model routing based on task complexity. Saves costs by using cheap models (MiniMax) for simple tasks, expensive models (Kimi) only when needed.
+Intelligent model routing based on task complexity. Routes to the best model for each task type.
 
 ## For Agents
 
@@ -20,8 +20,8 @@ from skills.smart_router.classifier import route, classify, should_use_cheap_mod
 | Function | Returns | Description |
 |----------|---------|-------------|
 | `route(prompt)` | dict | Full routing decision with model_id |
-| `classify(prompt)` | dict | Category + reason + thinking setting |
-| `should_use_cheap_model(prompt)` | bool | True if should use MiniMax |
+| `classify(prompt)` | dict | Category + reason |
+| `should_use_cheap_model(prompt)` | bool | True if should use default model |
 
 ### Response Format
 
@@ -33,7 +33,6 @@ result = route("fix this bug in auth.py")
   "model_key": "minimax",                    # model identifier
   "model_id": "minimax/minimax-m2.5",        # full model ID for API
   "reason": "coding_keyword",                # what triggered match
-  "enable_thinking": false                   # thinking on/off for this category
 }
 ```
 
@@ -48,21 +47,19 @@ Users can force a model with `--model=<name>`:
 
 | Priority | Category | Model | Keywords |
 |----------|----------|-------|----------|
-| 100 | heartbeat | MiniMax | heartbeat maintenance, check_reminders_silent |
-| 90 | vision | Kimi | image, pdf, screenshot, diagram, ui |
-| 85 | recall | Kimi | what were we talking about, prior context |
-| 70 | coding | MiniMax | code, fix, debug, function, class, api, git |
-| 60 | complex | Kimi | architecture, system design, multi-file, 700+ tokens |
-| 50 | simple | MiniMax | hi, ok, ping, status (<8 words) |
-
-## Model Selection Only
-
-This skill routes prompts to the optimal model. Thinking/reasoning is controlled globally by `agents.defaults.thinkingDefault` in openclaw.json (currently: off).
+| 100 | heartbeat | default | maintenance, check_reminders |
+| 90 | vision | multimodal | image, pdf, screenshot, diagram |
+| 85 | recall | large-context | prior context, what were we talking about |
+| 70 | coding | code-optimized | code, fix, debug, function, api |
+| 60 | complex | advanced | architecture, system design, multi-file |
+| 50 | simple | default | hi, ok, ping, status (<8 words) |
 
 ## Configuration
 
 Models: `config/models.json`
 Categories: `config/categories.json`
+
+Add new models and categories by editing these config files.
 
 ## Testing
 
