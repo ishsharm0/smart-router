@@ -46,19 +46,18 @@ Users can force a model with `--model=<name>`:
 
 ## Categories (Priority Order)
 
-| Priority | Category | Model | Keywords | Thinking |
-|----------|----------|-------|----------|----------|
-| 100 | heartbeat | MiniMax | heartbeat maintenance, check_reminders_silent | ❌ |
-| 90 | vision | Kimi | image, pdf, screenshot, diagram, ui | ✅ |
-| 85 | recall | Kimi | what were we talking about, prior context | ✅ |
-| 70 | coding | MiniMax | code, fix, debug, function, class, api, git | ❌ |
-| 60 | complex | Kimi | architecture, system design, multi-file, 700+ tokens | ✅ |
-| 50 | simple | MiniMax | hi, ok, ping, status (<8 words) | ❌ |
+| Priority | Category | Model | Keywords |
+|----------|----------|-------|----------|
+| 100 | heartbeat | MiniMax | heartbeat maintenance, check_reminders_silent |
+| 90 | vision | Kimi | image, pdf, screenshot, diagram, ui |
+| 85 | recall | Kimi | what were we talking about, prior context |
+| 70 | coding | MiniMax | code, fix, debug, function, class, api, git |
+| 60 | complex | Kimi | architecture, system design, multi-file, 700+ tokens |
+| 50 | simple | MiniMax | hi, ok, ping, status (<8 words) |
 
-## Thinking Control
+## Model Selection Only
 
-- **disable thinking** (`enableThinking: false`): coding, simple, heartbeat — saves tokens
-- **enable thinking** (`enableThinking: true`): vision, recall, complex — needs reasoning
+This skill routes prompts to the optimal model. Thinking/reasoning is controlled globally by `agents.defaults.thinkingDefault` in openclaw.json (currently: off).
 
 ## Configuration
 

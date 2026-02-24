@@ -17,6 +17,8 @@ The **Smart Router** analyzes each prompt and selects the best model:
 
 **Cost savings:** Uses MiniMax ($0.15/M) for 80%+ of prompts, reserves Kimi ($0.30-$1.50/M) only when needed.
 
+> **Note:** Thinking/reasoning is controlled globally by `agents.defaults.thinkingDefault` in openclaw.json (currently: off). This skill handles model selection only.
+
 ---
 
 ## For Agents (AI-to-AI)
@@ -157,7 +159,6 @@ Edit `config/categories.json`:
 | `triggers.keywords` | array | Match any keyword (case-insensitive) |
 | `triggers.patterns` | array | Regex patterns |
 | `triggers.thresholds` | object | minTokens, maxWords, minCodeFences, etc. |
-| `enableThinking` | bool | Enable reasoning for this category |
 
 ---
 

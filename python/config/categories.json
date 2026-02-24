@@ -14,8 +14,7 @@
           "check_reminders_silent",
           "heartbeat maintenance"
         ]
-      },
-      "enableThinking": false
+      }
     },
     "vision": {
       "model": "kimi",
@@ -40,8 +39,7 @@
           "\\[[^\\]]+\\]\\([^\\)]*\\.pdf(?:\\)|\\?)",
           "\\b\\S+\\.(png|jpe?g|gif|webp|bmp|tiff|heic|pdf)\\b"
         ]
-      },
-      "enableThinking": true
+      }
     },
     "recall": {
       "model": "kimi",
@@ -59,8 +57,7 @@
           "earlier context",
           "underlying cause"
         ]
-      },
-      "enableThinking": true
+      }
     },
     "coding": {
       "model": "minimax",
@@ -96,8 +93,7 @@
           "minCodeFences": 1,
           "minFilePaths": 1
         }
-      },
-      "enableThinking": false
+      }
     },
     "complex": {
       "model": "kimi",
@@ -123,8 +119,7 @@
           "minTokens": 700,
           "minWords": 320
         }
-      },
-      "enableThinking": true
+      }
     },
     "simple": {
       "model": "minimax",
@@ -146,8 +141,7 @@
           "maxWords": 8,
           "maxTokens": 140
         }
-      },
-      "enableThinking": false
+      }
     }
   },
   "fallback": {
