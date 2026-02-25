@@ -1,0 +1,10 @@
+{
+  "id": "model-router",
+  "name": "Model Router",
+  "description": "Deterministic model routing: MiniMax M2.5 default, Kimi K2.5 for multimodal/vision cues.",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

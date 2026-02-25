@@ -80,20 +80,27 @@ function getPromptText(event) {
 
 module.exports = function register(api) {
   api.on("before_model_resolve", async (event) => {
-    const prompt = getPromptText(event);
-    const decision = route({ prompt });
-    const model = getModel(decision.modelKey);
+    try {
+      const prompt = getPromptText(event);
+      const decision = route({ prompt });
+      const model = getModel(decision.modelKey);
 
-    if (DEBUG) {
-      const preview = prompt.slice(0, 120).replace(/\s+/g, " ").trim();
-      console.log(
-        `[ModelRouter] type=${decision.type} model=${decision.modelId} reason=${decision.reason} prompt="${preview}"`
-      );
+      if (DEBUG) {
+        const preview = prompt.slice(0, 120).replace(/\s+/g, " ").trim();
+        console.log(
+          `[ModelRouter] type=${decision.type} model=${decision.modelId} reason=${decision.reason} prompt="${preview}"`
+        );
+      }
+
+      return {
+        providerOverride: model?.provider || "openrouter",
+        modelOverride: decision.modelId,
+      };
+    } catch (err) {
+      if (DEBUG) {
+        console.log(`[ModelRouter] error=${err?.message || String(err)}`);
+      }
+      return undefined;
     }
-
-    return {
-      providerOverride: model?.provider || "openrouter",
-      modelOverride: decision.modelId,
-    };
   });
 };
