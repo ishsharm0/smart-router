@@ -56,16 +56,26 @@
         "keywords": [
           "architecture",
           "system design",
+          "explain",
           "explain why",
+          "how does",
           "prove",
           "derive",
           "scientific",
           "mathematical",
           "theory",
-          "hypothesis"
+          "hypothesis",
+          "quantum",
+          "physics",
+          "chemistry",
+          "biology",
+          "algorithm",
+          "complexity",
+          "optimize",
+          "trade-off"
         ],
         "thresholds": {
-          "minTokens": 600
+          "minTokens": 200
         }
       }
     },
