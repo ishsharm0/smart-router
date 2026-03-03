@@ -1,152 +1,152 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "1.1.0",
-  "description": "Classification categories for intelligent routing",
+  "version": "2.0.1",
+  "description": "Optimized routing: MiniMax for speed/coding, Qwen for reasoning fallback, Kimi for vision/frontend",
   "categories": {
-    "heartbeat": {
-      "model": "minimax",
-      "priority": 100,
-      "description": "Background maintenance checks",
+    "frontend": {
+      "model": "kimi",
+      "priority": 90,
+      "description": "UI/frontend work — Kimi excels at visual and component tasks",
       "triggers": {
         "keywords": [
-          "read heartbeat.md if it exists",
-          "heartbeat_ok",
-          "check_reminders_silent",
-          "heartbeat maintenance"
+          "css",
+          "html",
+          "component",
+          "frontend",
+          "react",
+          "vue",
+          "tailwind",
+          "svelte",
+          "styled",
+          "layout",
+          "responsive",
+          "animation",
+          "navbar",
+          "modal",
+          "tooltip",
+          "dropdown",
+          "theme",
+          "dark mode"
         ]
       }
     },
     "vision": {
       "model": "kimi",
-      "priority": 90,
-      "description": "Image/PDF/UI analysis",
+      "priority": 95,
+      "description": "Image/PDF analysis — Kimi has best vision capabilities",
       "triggers": {
         "keywords": [
-          "screenshot",
           "image",
-          "images",
           "pdf",
+          "screenshot",
           "diagram",
-          "ui",
-          "wireframe",
-          "attachment",
-          "attachments",
-          "photo",
-          "scan"
-        ],
-        "patterns": [
-          "!\\[[^\\]]*\\]\\([^\\)]*\\)",
-          "\\[[^\\]]+\\]\\([^\\)]*\\.pdf(?:\\)|\\?)",
-          "\\b\\S+\\.(png|jpe?g|gif|webp|bmp|tiff|heic|pdf)\\b"
+          "chart",
+          "graph",
+          "visual",
+          "picture",
+          "photo"
         ]
-      }
-    },
-    "recall": {
-      "model": "kimi",
-      "priority": 85,
-      "description": "Context recovery and prior conversation reconstruction",
-      "triggers": {
-        "keywords": [
-          "what were we talking about",
-          "what were we doing",
-          "what did we just discuss",
-          "remind me what",
-          "recap what",
-          "previous context",
-          "prior context",
-          "earlier context",
-          "underlying cause"
-        ]
-      }
-    },
-    "coding": {
-      "model": "minimax",
-      "priority": 70,
-      "description": "Code edits, debugging, tool workflows",
-      "triggers": {
-        "keywords": [
-          "code",
-          "coding",
-          "debug",
-          "fix",
-          "error",
-          "stack trace",
-          "traceback",
-          "function",
-          "class",
-          "method",
-          "script",
-          "api",
-          "endpoint",
-          "database",
-          "sql",
-          "query",
-          "lint",
-          "test",
-          "build",
-          "compile",
-          "repo",
-          "git",
-          "deploy"
-        ],
-        "thresholds": {
-          "minCodeFences": 1,
-          "minFilePaths": 1
-        }
       }
     },
     "complex": {
-      "model": "kimi",
-      "priority": 60,
-      "description": "Architecture and deep multi-step reasoning",
+      "model": "qwen",
+      "priority": 85,
+      "description": "Science, math, deep reasoning — Qwen has best GPQA score (88.4%)",
       "triggers": {
         "keywords": [
           "architecture",
           "system design",
-          "design doc",
-          "migration plan",
-          "cross-project",
-          "tradeoff",
-          "trade-off",
-          "root cause",
-          "comprehensive",
-          "end-to-end",
-          "multi-file"
+          "explain",
+          "explain why",
+          "how does",
+          "prove",
+          "derive",
+          "scientific",
+          "mathematical",
+          "theory",
+          "hypothesis",
+          "quantum",
+          "physics",
+          "chemistry",
+          "biology",
+          "algorithm",
+          "complexity",
+          "optimize",
+          "trade-off"
         ],
         "thresholds": {
-          "minCodeFences": 3,
-          "minFilePaths": 3,
-          "minTokens": 700,
-          "minWords": 320
+          "minTokens": 200
         }
+      }
+    },
+    "coding": {
+      "model": "minimax",
+      "priority": 80,
+      "description": "Code, debug, fix — MiniMax has best SWE-Bench (80.2%)",
+      "triggers": {
+        "keywords": [
+          "code",
+          "fix",
+          "debug",
+          "bug",
+          "error",
+          "function",
+          "api",
+          "implement",
+          "refactor",
+          "test",
+          "not working",
+          "broken",
+          "failing"
+        ]
+      }
+    },
+    "axiom": {
+      "model": "minimax",
+      "priority": 80,
+      "description": "Axiom trading automation",
+      "triggers": {
+        "keywords": [
+          "axiom",
+          "start trading",
+          "trading interface",
+          "wallet tracker",
+          "playwright",
+          "cdp relay",
+          "browser session"
+        ]
+      }
+    },
+    "heartbeat": {
+      "model": "minimax",
+      "priority": 100,
+      "description": "Background maintenance — MiniMax for speed",
+      "triggers": {
+        "keywords": [
+          "heartbeat_ok",
+          "check_reminders_silent",
+          "heartbeat maintenance",
+          "internal heartbeat"
+        ]
       }
     },
     "simple": {
       "model": "minimax",
       "priority": 50,
-      "description": "Short chat, pings, status checks",
+      "description": "Chat, pings, quick tasks — MiniMax is fastest",
       "triggers": {
         "patterns": [
-          "^hi+$",
-          "^hello+$",
-          "^hey+$",
-          "^yo+$",
-          "^ok(?:ay)?[.!?]*$",
-          "^thanks?(?: you)?[.!?]*$",
-          "^ping[.!?]*$",
-          "^status[.!?]*$",
-          "^test(?:ing)?[.!?]*$"
+          "^\\s*(hi+|hello+|hey+|yo+|ok(?:ay)?|thanks?(?: you)?|ping|status|test(?:ing)?)[.!?\\s]*$"
         ],
         "thresholds": {
           "maxWords": 8,
-          "maxTokens": 140
-        },
-        "keywords": ["hi", "hey", "hello", "yo", "ok", "thanks", "ping", "status"]
+          "maxTokens": 150
+        }
       }
     }
   },
   "fallback": {
     "model": "minimax",
-    "description": "Default category when no match"
+    "description": "Default — MiniMax M2.5 for fast responses, best coding (80.2% SWE-Bench)"
   }
 }

@@ -1,65 +1,121 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "1.0.0",
-  "description": "Model definitions for intelligent routing",
+  "version": "2.0.1",
+  "description": "Optimized Alibaba Cloud models based on benchmarks. MiniMax=fast/coding, Qwen=reasoning, Kimi=vision",
   "models": {
-    "minimax": {
-      "id": "minimax/minimax-m2.5",
-      "name": "MiniMax M2.5",
-      "provider": "openrouter",
+    "qwen": {
+      "id": "qwen3.5-plus",
+      "name": "Qwen 3.5 Plus",
+      "provider": "alibaba",
       "cost": {
-        "input": 0.15,
-        "output": 0.15,
+        "input": 0,
+        "output": 0,
         "unit": "per-1m-tokens"
       },
-      "context": 28000,
-      "strengths": ["coding", "tool-use", "fast-response", "low-latency"],
-      "aliases": ["minimax", "m2.5", "minimax-m2.5", "cheap", "fast", "simple", "coding", "heartbeat"]
+      "context": 1048576,
+      "strengths": [
+        "complex-reasoning",
+        "science",
+        "math",
+        "gpqa",
+        "large-context",
+        "summarization"
+      ],
+      "weaknesses": [
+        "slower than minimax",
+        "not best-in-class for coding"
+      ],
+      "benchmarks": {
+        "swe-bench": 76.4,
+        "gpqa-diamond": 88.4,
+        "intelligence-index": 82
+      },
+      "aliases": [
+        "qwen",
+        "qwen3.5",
+        "qwen3.5-plus",
+        "reasoning"
+      ]
+    },
+    "minimax": {
+      "id": "MiniMax-M2.5",
+      "name": "MiniMax M2.5",
+      "provider": "alibaba",
+      "cost": {
+        "input": 0,
+        "output": 0,
+        "unit": "per-1m-tokens"
+      },
+      "context": 131072,
+      "strengths": [
+        "coding",
+        "debugging",
+        "fast-inference",
+        "tool-use",
+        "chat",
+        "swe-bench"
+      ],
+      "weaknesses": [
+        "no vision input",
+        "weaker on science/reasoning"
+      ],
+      "benchmarks": {
+        "swe-bench": 80.2,
+        "gpqa-diamond": null,
+        "intelligence-index": 80
+      },
+      "aliases": [
+        "minimax",
+        "m2.5",
+        "coding",
+        "fast",
+        "default"
+      ]
     },
     "kimi": {
-      "id": "moonshotai/kimi-k2.5",
+      "id": "kimi-k2.5",
       "name": "Kimi K2.5",
-      "provider": "openrouter",
+      "provider": "alibaba",
       "cost": {
-        "input": 0.30,
-        "output": 1.50,
+        "input": 0,
+        "output": 0,
         "unit": "per-1m-tokens"
       },
-      "context": 128000,
-      "strengths": ["complex-reasoning", "multimodal", "large-context", "vision"],
-      "aliases": ["kimi", "k2.5", "k2p5", "moonshotai/kimi-k2.5", "complex", "vision", "recall"]
-    },
-    "deepseek": {
-      "id": "deepseek/deepseek-chat",
-      "name": "DeepSeek Chat",
-      "provider": "openrouter",
-      "cost": {
-        "input": 0.04,
-        "output": 0.14,
-        "unit": "per-1m-tokens"
+      "context": 256000,
+      "strengths": [
+        "vision",
+        "image-analysis",
+        "frontend",
+        "ui",
+        "agent-swarm",
+        "browse-comp"
+      ],
+      "weaknesses": [
+        "slowest inference",
+        "highest hallucination rate",
+        "verbose output"
+      ],
+      "benchmarks": {
+        "swe-bench": 76.8,
+        "gpqa-diamond": 87.6,
+        "intelligence-index": 85,
+        "browse-comp": 78.4
       },
-      "context": 64000,
-      "strengths": ["coding", "math", "ultra-cheap"],
-      "aliases": ["deepseek", "deepseek-chat", "cheap2"],
-      "enabled": false
-    },
-    "claude": {
-      "id": "anthropic/claude-3.5-sonnet",
-      "name": "Claude 3.5 Sonnet",
-      "provider": "openrouter",
-      "cost": {
-        "input": 3.00,
-        "output": 15.00,
-        "unit": "per-1m-tokens"
-      },
-      "context": 200000,
-      "strengths": ["writing", "analysis", "safety", "high-quality"],
-      "aliases": ["claude", "claude-sonnet", "sonnet", "premium"],
-      "enabled": false
+      "aliases": [
+        "kimi",
+        "k2.5",
+        "frontend",
+        "ui",
+        "vision"
+      ]
     }
   },
   "defaults": {
     "fallback": "minimax",
     "explicitOverride": true
+  },
+  "budget": {
+    "monthlyUsd": 0,
+    "comment": "Flat subscription - 1200 requests per 5hr shared pool. No token billing."
   }
 }
