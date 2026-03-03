@@ -1,79 +1,27 @@
 # Smart Router
 
-> Intelligent model routing for OpenClaw. Automatically routes prompts to the optimal model based on task type, complexity, and model strengths.
+> Intelligent model routing for any LLM setup. Automatically routes prompts to the optimal model based on task type, complexity, and model strengths.
 
-## What This Skill Does
-
-The **Smart Router** analyzes each prompt and selects the best model for the task using config-driven rules. Instead of using one model for everything, it routes to specialized models:
-
-| Task Type | Model | Why |
-|-----------|-------|-----|
-| Simple chat, pings | MiniMax M2.5 | Fastest inference, low latency |
-| Coding, debugging | MiniMax M2.5 | Best SWE-Bench score (80.2%) |
-| Science, math, reasoning | Qwen3.5-Plus | Best GPQA-Diamond (88.4%) |
-| Vision, images, PDFs | Kimi K2.5 | Best multimodal capabilities |
-| Frontend, UI, CSS | Kimi K2.5 | Strongest at visual-to-code |
-| Background maintenance | MiniMax M2.5 | Fast, lightweight |
-
-**Goal:** Match each task to the model that excels at it — faster responses, better quality, optimal resource usage.
+**Works with:** OpenRouter, Alibaba Cloud, Ollama, LM Studio, vLLM, Anthropic Direct, OpenAI Direct, Google AI, and more.
 
 ---
 
-## Model Benchmarks (2026)
+## Quick Start
 
-| Model | SWE-Bench | GPQA-Diamond | Intelligence Index | Speed | Best For |
-|-------|-----------|--------------|-------------------|-------|----------|
-| **MiniMax M2.5** | 80.2% | — | ~80 | ⚡⚡⚡ | Coding, chat, tool use |
-| **Qwen3.5-Plus** | 76.4% | 88.4% | ~82 | ⚡⚡ | Science, reasoning, large context |
-| **Kimi K2.5** | 76.8% | 87.6% | ~85 | ⚡ | Vision, frontend, agent swarms |
+### 1. Choose a Preset
 
-*Data from Artificial Analysis, Hugging Face, and community benchmarks (Feb 2026)*
+Smart Router includes pre-configured presets for common setups:
 
----
+| Preset | Models | Best For | Cost |
+|--------|--------|----------|------|
+| `minimal` | 2 models | Simple setups, local LLMs, budget | $ |
+| `alibaba-coding-plan` | 3 models | Alibaba Cloud users (free tier) | Free* |
+| `openrouter-all` | 7 models | Full OpenRouter access | $$ |
+| `enterprise` | 4 models | Production, highest quality | $$$$ |
 
-## For Agents (AI-to-AI)
+\* Alibaba Coding Plan: 1200 requests per 5hr shared pool
 
-### How I Route Prompts
-
-```python
-from skills.smart_router.classifier import route
-
-# Input: any prompt string
-decision = route("fix this bug in auth.py")
-
-# Output:
-# {
-#   "type": "coding",           # category matched
-#   "model_key": "minimax",      # which model to use
-#   "model_id": "MiniMax-M2.5",
-#   "reason": "coding_keyword",  # what triggered this
-# }
-```
-
-### Key Functions
-
-| Function | Returns | Use Case |
-|----------|---------|----------|
-| `route(prompt)` | dict | Full routing decision with model_id |
-| `classify(prompt)` | dict | Category + reason for classification |
-| `should_use_cheap_model(prompt)` | bool | Quick cheap/expensive check |
-| `get_model(model_key)` | dict | Get model config by key or alias |
-| `resolve_explicit_override(prompt)` | dict | Check for `--model=...` override |
-
-### Explicit Override
-
-Users can force a specific model with `--model=<name>`:
-```
---model=kimi      → Routes to Kimi K2.5
---model=minimax   → Routes to MiniMax M2.5
---model=qwen      → Routes to Qwen3.5-Plus
-```
-
----
-
-## For Humans (Installation)
-
-### Quick Install
+### 2. Install
 
 ```bash
 # Via ClawHub (recommended)
@@ -83,102 +31,230 @@ clawhub install smart-router
 cp -r smart-router/ ~/.openclaw/workspace/skills/
 ```
 
-### Enable Auto-Routing (Optional)
-
-The router works as a skill by default. For automatic model selection on every prompt, enable it as a plugin:
+### 3. Load a Preset
 
 ```bash
-# Enable the smart-router plugin
-openclaw config patch --json '{"plugins":{"entries":{"smart-router":{"enabled":true}}}}'
-openclaw gateway restart
-```
-
-### Test Installation
-
-```bash
-# Test routing decisions
+# Copy your chosen preset to active config
 cd ~/.openclaw/workspace/skills/smart-router
 
-python3 -m python.classifier "fix this bug"
-# → {"type": "coding", "model_key": "minimax", "model_id": "MiniMax-M2.5", ...}
+# Example: Use OpenRouter preset
+cp presets/openrouter-all.json config/models.json
+cp presets/openrouter-all.json config/categories.json
 
-python3 -m python.classifier "explain quantum entanglement"
-# → {"type": "complex", "model_key": "qwen", "model_id": "qwen3.5-plus", ...}
-
-python3 -m python.classifier "analyze this screenshot"
-# → {"type": "vision", "model_key": "kimi", "model_id": "kimi-k2.5", ...}
-
-# List all available models
-python3 -m python.classifier --list
+# Or use the included script
+python3 scripts/load-preset.py openrouter-all
 ```
 
----
+### 4. Customize (Optional)
 
-## Configuration
-
-### Default Models (Included)
-
-| Key | Model ID | Provider | Strengths |
-|-----|----------|----------|-----------|
-| `minimax` | MiniMax-M2.5 | Alibaba | Coding, speed, tool use |
-| `qwen` | qwen3.5-plus | Alibaba | Reasoning, science, large context |
-| `kimi` | kimi-k2.5 | Alibaba | Vision, frontend, agent swarms |
-
-### Add a New Model
-
-Edit `config/models.json`:
+Edit `config/models.json` to adjust model IDs for your provider:
 
 ```json
 {
   "models": {
-    "claude": {
-      "id": "anthropic/claude-3.5-sonnet",
-      "name": "Claude 3.5 Sonnet",
-      "provider": "openrouter",
-      "cost": { "input": 3.00, "output": 15.00, "unit": "per-1m-tokens" },
-      "context": 200000,
-      "strengths": ["writing", "analysis", "conversation"],
-      "weaknesses": ["expensive", "slower than minimax"],
-      "benchmarks": {
-        "swe-bench": 77.2,
-        "gpqa-diamond": 85.1
-      },
-      "aliases": ["claude", "sonnet", "anthropic"],
-      "enabled": true
+    "fast": {
+      "id": "anthropic/claude-sonnet-4.6",  // Your model ID
+      "enabled": true,
+      "default": true
     }
   }
 }
 ```
 
-### Add a Category
+### 5. Test
 
-Edit `config/categories.json`:
+```bash
+python3 -m python.classifier "fix this bug"
+# → {"type": "coding", "model_key": "fast", "model_id": "..."}
+```
+
+---
+
+## What This Does
+
+Smart Router analyzes each prompt and routes to the best model:
+
+| If your prompt is... | Route to | Why |
+|---------------------|----------|-----|
+| "hi", "thanks", "ping" | Fast model | Low latency, cheap |
+| "fix this bug", "implement feature" | Coding model | Best SWE-Bench score |
+| "explain quantum physics" | Reasoning model | Best GPQA score |
+| "analyze this screenshot" | Vision model | Best multimodal |
+| "write an email" | Writing model | Best prose quality |
+
+**Result:** Better quality responses, lower costs, faster responses for simple tasks.
+
+---
+
+## Available Presets
+
+### `minimal` (2 Models)
+
+Bare minimum setup. Works with any provider.
 
 ```json
 {
-  "categories": {
-    "writing": {
-      "model": "claude",
-      "priority": 65,
-      "description": "Content writing, editing, and creative work",
-      "triggers": {
-        "keywords": ["write", "draft", "edit", "compose", "rewrite", "polish"]
+  "fast": "Your fast coding/chat model",
+  "smart": "Your smart reasoning/vision model"
+}
+```
+
+**Example configs:**
+- OpenRouter: `claude-sonnet-4.6` + `gemini-3.1-pro`
+- Ollama: `llama3.1:8b` + `llama3.1:70b`
+- Alibaba: `MiniMax-M2.5` + `qwen3.5-plus`
+
+### `alibaba-coding-plan` (3 Models)
+
+Optimized for Alibaba Cloud's free Coding Plan.
+
+| Model | Use For |
+|-------|---------|
+| MiniMax M2.5 | Coding, chat, default |
+| Qwen3.5-Plus | Science, reasoning, large context |
+| Kimi K2.5 | Vision, frontend, agent swarms |
+
+### `openrouter-all` (7 Models)
+
+Full OpenRouter model selection.
+
+| Model | Use For | Cost/1M |
+|-------|---------|---------|
+| GPT-5.3 Codex | Critical coding | $0.75/$3.00 |
+| Claude Opus 4.6 | Complex reasoning | $15/$75 |
+| Claude Sonnet 4.6 | Balanced tasks | $3/$15 |
+| Gemini 3.1 Pro | Vision, video, large context | $0.50/$2.00 |
+| MiniMax M2.5 | Fast coding | $0.30/$1.20 |
+| Kimi K2.5 | Frontend, agent swarms | $0.45/$2.20 |
+| DeepSeek V3.2 | Budget coding | $0.32/$0.89 |
+
+### `enterprise` (4 Models)
+
+Premium production setup.
+
+| Model | Use For |
+|-------|---------|
+| GPT-5.3 Codex | Default, coding, agentic |
+| Claude Opus 4.6 | Architecture, writing, analysis |
+| Gemini 3.1 Pro | Vision, video, multimodal |
+| Claude Sonnet 4.6 | Simple tasks (cost savings) |
+
+---
+
+## Create Your Own Preset
+
+### Step 1: Copy a Template
+
+```bash
+cp presets/minimal.json presets/my-setup.json
+```
+
+### Step 2: Edit Models
+
+```json
+{
+  "name": "My Custom Setup",
+  "description": "Personal config",
+  "models": {
+    "fast": {
+      "id": "your-provider/model-id",
+      "name": "Friendly Name",
+      "provider": "provider-name",
+      "context": 100000,
+      "strengths": ["coding", "chat"],
+      "benchmarks": { "swe-bench": 75 },
+      "cost": { "input": 0.50, "output": 1.50 },
+      "aliases": ["fast", "default"],
+      "enabled": true,
+      "default": true
+    }
+  }
+}
+```
+
+### Step 3: Edit Routing
+
+```json
+{
+  "routing": {
+    "fallback": "fast",
+    "categories": {
+      "coding": {
+        "model": "fast",
+        "priority": 80,
+        "keywords": ["code", "fix", "debug", "bug"]
       }
     }
   }
 }
 ```
 
+### Step 4: Load It
+
+```bash
+python3 scripts/load-preset.py my-setup
+```
+
+---
+
+## Model Benchmarks Reference
+
+Data from [Artificial Analysis](https://artificialanalysis.ai), [Hugging Face](https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard), and community testing (Feb 2026).
+
+### Coding (SWE-Bench Verified)
+
+| Model | Score | Provider |
+|-------|-------|----------|
+| GPT-5.3 Codex | 82.1% | OpenAI |
+| Claude Opus 4.6 | 80.9% | Anthropic |
+| MiniMax M2.5 | 80.2% | MiniMax |
+| Gemini 3.1 Pro | 78.5% | Google |
+| Claude Sonnet 4.6 | 77.2% | Anthropic |
+| Kimi K2.5 | 76.8% | Moonshot |
+| Qwen3.5-Plus | 76.4% | Alibaba |
+
+### Science & Reasoning (GPQA-Diamond)
+
+| Model | Score | Provider |
+|-------|-------|----------|
+| GPT-5.3 Codex | 91.2% | OpenAI |
+| Claude Opus 4.6 | 89.2% | Anthropic |
+| Qwen3.5-Plus | 88.4% | Alibaba |
+| Gemini 3.1 Pro | 87.9% | Google |
+| Kimi K2.5 | 87.6% | Moonshot |
+
+### Vision (MMMU Pro / OCRBench)
+
+| Model | Score | Provider |
+|-------|-------|----------|
+| Gemini 3.1 Pro | 78.2% (MMMU) | Google |
+| Kimi K2.5 | 92.3% (OCRBench) | Moonshot |
+| GPT-5.3 Codex | 76.8% (MMMU) | OpenAI |
+
+### Speed (Tokens/Second)
+
+| Model | Speed | Latency |
+|-------|-------|---------|
+| Llama 3.1 8B | 2600 tok/s | ~0.1s |
+| MiniMax M2.5 | ~80 tok/s | ~0.4s |
+| Claude Sonnet 4.6 | ~65 tok/s | ~0.6s |
+| Qwen3.5-Plus | ~50 tok/s | ~0.8s |
+| Kimi K2.5 | ~35 tok/s | ~1.2s |
+
+---
+
+## Configuration Reference
+
 ### Category Fields
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `model` | string | Model key to route to (must exist in models.json) |
-| `priority` | number | Higher = checked first (100 = highest priority) |
-| `description` | string | Human-readable description of the category |
-| `triggers.keywords` | array | Match any keyword (case-insensitive substring) |
-| `triggers.patterns` | array | Regex patterns to match (Python regex syntax) |
-| `triggers.thresholds` | object | Structural checks: minTokens, maxWords, minCodeFences, minFilePaths, etc. |
+| `model` | string | Model key to route to |
+| `priority` | number | Higher = checked first (100 = highest) |
+| `description` | string | Human-readable description |
+| `triggers.keywords` | array | Match any keyword (case-insensitive) |
+| `triggers.patterns` | array | Regex patterns |
+| `triggers.thresholds` | object | minTokens, maxWords, minCodeFences, etc. |
 
 ### Threshold Options
 
@@ -193,18 +269,37 @@ Edit `config/categories.json`:
 
 ---
 
-## Routing Logic
+## Provider-Specific Setup
 
-Categories are evaluated in **priority order** (highest first). First match wins.
+### OpenRouter
 
-1. **Priority 100**: Heartbeat (background maintenance)
-2. **Priority 95**: Vision (images, PDFs, diagrams)
-3. **Priority 90**: Frontend (UI, CSS, React, Tailwind)
-4. **Priority 85**: Complex (science, math, reasoning, "explain")
-5. **Priority 80**: Coding (debug, fix, implement, refactor)
-6. **Priority 80**: Axiom (trading automation)
-7. **Priority 50**: Simple (chat, pings, <8 words)
-8. **Fallback**: MiniMax M2.5 (default for everything else)
+1. Get API key: https://openrouter.ai/keys
+2. Use `openrouter-all` or `minimal` preset
+3. Set `OPENROUTER_API_KEY` env var
+
+### Alibaba Cloud
+
+1. Sign up for Coding Plan (free tier)
+2. Use `alibaba-coding-plan` preset
+3. Configure API key in gateway config
+
+### Ollama (Local)
+
+1. Install: https://ollama.ai
+2. Pull models: `ollama pull llama3.1:8b llama3.1:70b`
+3. Use `minimal` preset with Ollama model IDs
+
+### LM Studio (Local)
+
+1. Download: https://lmstudio.ai
+2. Load models and start local server
+3. Use `minimal` preset with `localhost:1234` endpoints
+
+### vLLM (Self-Hosted)
+
+1. Deploy vLLM with your models
+2. Use `minimal` preset with vLLM endpoints
+3. Configure base URLs in models.json
 
 ---
 
@@ -215,11 +310,14 @@ Categories are evaluated in **priority order** (highest first). First match wins
 export OPENCLAW_SMART_ROUTER_DEBUG=1
 openclaw gateway restart
 
-# Check gateway logs
-openclaw logs --follow | grep -i router
-
-# Test a prompt manually
+# Test a prompt
 python3 -m python.classifier "your prompt here"
+
+# List available models
+python3 -m python.classifier --list
+
+# List available presets
+ls presets/
 ```
 
 ---
@@ -228,23 +326,22 @@ python3 -m python.classifier "your prompt here"
 
 ```
 smart-router/
-├── SKILL.md               # Agent instructions (internal)
-├── README.md              # This file (public docs)
+├── README.md              # This file
+├── SKILL.md               # Agent instructions
 ├── config/
-│   ├── models.json        # Model definitions and benchmarks
-│   └── categories.json    # Routing rules and triggers
+│   ├── models.json        # Active model config
+│   └── categories.json    # Active routing rules
+├── presets/
+│   ├── minimal.json       # 2-model preset
+│   ├── alibaba-coding-plan.json
+│   ├── openrouter-all.json
+│   └── enterprise.json    # Premium preset
 ├── python/
-│   ├── classifier.py      # Core Python implementation
-│   └── config/            # Synced config copies
-├── extension/
-│   ├── index.js           # Gateway plugin hook
-│   └── config/            # Synced config copies
-├── lib/
-│   └── classifier.js      # JavaScript version (legacy)
+│   └── classifier.py      # Core Python implementation
 ├── scripts/
-│   └── router.js          # CLI helper
+│   └── load-preset.py     # Preset loader script
 └── references/
-    └── costs.md           # Model pricing reference
+    └── benchmarks.md      # Model benchmark data
 ```
 
 ---
@@ -253,17 +350,26 @@ smart-router/
 
 - **OpenClaw** 2026.2+
 - **Python** 3.8+ (for Python skill usage)
-- **Model provider** configured (Alibaba, OpenRouter, etc.)
+- **Model provider** configured (any OpenAI-compatible API)
 
 ---
 
-## Version History
+## Contributing
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 2.0.1 | Mar 2026 | Benchmark-based routing: MiniMax default, Qwen reasoning, Kimi vision |
-| 2.0.0 | Feb 2026 | Config-driven routing, multi-provider support |
-| 1.0.0 | Jan 2026 | Initial release |
+### Add a Preset
+
+1. Create `presets/your-preset.json`
+2. Include 2-10 models with benchmarks
+3. Define routing categories
+4. Submit PR with benchmark sources
+
+### Update Benchmarks
+
+Edit `references/benchmarks.md` with:
+- Model name and version
+- Benchmark scores (SWE-Bench, GPQA, etc.)
+- Source URL
+- Date tested
 
 ---
 
@@ -273,14 +379,8 @@ MIT
 
 ---
 
-## Contributing
+## Support
 
-1. Add model benchmarks to `models.json`
-2. Add routing category to `categories.json`
-3. Test with `python3 -m python.classifier "test prompt"`
-4. Submit PR with benchmark sources
-
-For model research and benchmark sources, see:
-- [Artificial Analysis](https://artificialanalysis.ai)
-- [Hugging Face Open LLM Leaderboard](https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard)
-- [r/LocalLLaMA](https://reddit.com/r/LocalLLaMA)
+- **Issues:** https://github.com/ishsharm0/smart-router/issues
+- **Discussions:** https://github.com/ishsharm0/smart-router/discussions
+- **Benchmarks:** https://artificialanalysis.ai, https://llm-stats.com

@@ -1,7 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "2.0.1",
-  "description": "Optimized routing: MiniMax for speed/coding, Qwen for reasoning fallback, Kimi for vision/frontend",
+  "version": "2.1.0",
+  "description": "Active routing configuration. Loaded from preset.",
+  "preset": {
+    "name": "alibaba-coding-plan",
+    "path": "../presets/alibaba-coding-plan.json",
+    "description": "Current active preset"
+  },
   "categories": {
     "frontend": {
       "model": "kimi",

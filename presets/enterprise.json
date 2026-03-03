@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "2.1.0",
+  "name": "Enterprise (Premium)",
+  "description": "Premium enterprise setup with GPT-5, Claude Opus, and Gemini. Best for production environments requiring highest quality.",
+  "provider": "multi-provider",
+  "pricing": {
+    "type": "pay-per-token",
+    "details": "Premium pricing. Estimated $50-200/month for moderate usage."
+  },
+  "models": {
+    "codex": {
+      "id": "openai/gpt-5.3-codex",
+      "name": "GPT-5.3 Codex",
+      "provider": "openai",
+      "context": 400000,
+      "strengths": ["coding", "math", "reasoning", "agentic", "function-calling"],
+      "benchmarks": {
+        "swe-bench": 82.1,
+        "aime-2025": 100,
+        "gpqa-diamond": 91.2,
+        "intelligence-index": 91
+      },
+      "cost": { "input": 0.75, "output": 3.00, "unit": "per-1m-tokens" },
+      "aliases": ["codex", "gpt-5", "gpt5", "openai", "gpt-5.3"],
+      "enabled": true,
+      "default": true
+    },
+    "opus": {
+      "id": "anthropic/claude-opus-4.6",
+      "name": "Claude Opus 4.6",
+      "provider": "anthropic",
+      "context": 200000,
+      "strengths": ["coding", "writing", "analysis", "adaptive-reasoning", "grind"],
+      "benchmarks": {
+        "swe-bench": 80.9,
+        "gpqa-diamond": 89.2,
+        "intelligence-index": 89,
+        "grind-adaptive": 94.3
+      },
+      "cost": { "input": 15.00, "output": 75.00, "unit": "per-1m-tokens" },
+      "aliases": ["opus", "claude-opus", "claude-4", "anthropic", "claude-opus-4.6"],
+      "enabled": true
+    },
+    "gemini": {
+      "id": "google/gemini-3.1-pro-preview",
+      "name": "Gemini 3.1 Pro Preview",
+      "provider": "google",
+      "context": 1000000,
+      "strengths": ["vision", "multimodal", "video", "large-context", "native-tool-use"],
+      "benchmarks": {
+        "swe-bench": 78.5,
+        "gpqa-diamond": 87.9,
+        "intelligence-index": 90,
+        "mmmu-pro": 78.2,
+        "video-mme": 75.8
+      },
+      "cost": { "input": 0.50, "output": 2.00, "unit": "per-1m-tokens" },
+      "aliases": ["gemini", "gemini-3", "google", "gemini-pro"],
+      "enabled": true
+    },
+    "sonnet": {
+      "id": "anthropic/claude-sonnet-4.6",
+      "name": "Claude Sonnet 4.6",
+      "provider": "anthropic",
+      "context": 200000,
+      "strengths": ["balanced", "speed", "cost-effective", "writing"],
+      "benchmarks": {
+        "swe-bench": 77.2,
+        "gpqa-diamond": 84.1,
+        "intelligence-index": 83
+      },
+      "cost": { "input": 3.00, "output": 15.00, "unit": "per-1m-tokens" },
+      "aliases": ["sonnet", "claude-sonnet", "claude-3.7"],
+      "enabled": true
+    }
+  },
+  "routing": {
+    "fallback": "codex",
+    "categories": {
+      "heartbeat": {
+        "model": "sonnet",
+        "priority": 100,
+        "keywords": ["heartbeat_ok", "check_reminders", "internal heartbeat"]
+      },
+      "vision": {
+        "model": "gemini",
+        "priority": 95,
+        "keywords": ["image", "pdf", "screenshot", "diagram", "chart", "graph", "visual", "picture", "photo", "video"]
+      },
+      "frontend": {
+        "model": "gemini",
+        "priority": 90,
+        "keywords": ["css", "html", "component", "frontend", "react", "vue", "tailwind", "svelte", "styled", "layout", "responsive", "animation", "navbar", "modal", "tooltip", "dropdown", "theme", "dark mode"]
+      },
+      "coding-critical": {
+        "model": "codex",
+        "priority": 88,
+        "keywords": ["critical bug", "production issue", "security vulnerability", "optimize algorithm", "complex refactor", "performance optimization"]
+      },
+      "coding": {
+        "model": "codex",
+        "priority": 85,
+        "keywords": ["code", "fix", "debug", "bug", "error", "function", "api", "implement", "refactor", "test", "not working", "broken", "failing"]
+      },
+      "reasoning": {
+        "model": "opus",
+        "priority": 82,
+        "keywords": ["architecture", "system design", "explain", "explain why", "how does", "prove", "derive", "scientific", "mathematical", "theory", "hypothesis", "quantum", "physics", "chemistry", "biology", "strategy", "analysis"]
+      },
+      "writing": {
+        "model": "opus",
+        "priority": 75,
+        "keywords": ["write", "draft", "edit", "compose", "rewrite", "polish", "email", "document", "report", "summary", "blog post", "article"]
+      },
+      "simple": {
+        "model": "sonnet",
+        "priority": 50,
+        "patterns": ["^\\s*(hi+|hello+|hey+|yo+|ok(?:ay)?|thanks?(?: you)?|ping|status|test(?:ing)?)[.!?\\s]*$"],
+        "thresholds": { "maxWords": 8, "maxTokens": 150 }
+      }
+    }
+  },
+  "enterprise": {
+    "features": {
+      "priority_routing": "Route critical tasks to best models regardless of cost",
+      "fallback_chain": "codex → opus → sonnet",
+      "cost_optimization": "Use sonnet for simple tasks to reduce costs"
+    },
+    "recommendations": {
+      "development": "Use codex for all coding, opus for architecture",
+      "production": "Use opus for critical paths, sonnet for routine tasks",
+      "research": "Use opus for analysis, gemini for multimodal research"
+    }
+  }
+}

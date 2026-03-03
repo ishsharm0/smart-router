@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "2.1.0",
+  "name": "Alibaba Cloud Coding Plan",
+  "description": "Optimized for Alibaba Cloud's free Coding Plan (1200 req/5hr). Best for developers with Alibaba access.",
+  "provider": "alibaba",
+  "pricing": {
+    "type": "subscription",
+    "details": "1200 requests per 5hr shared pool across all models"
+  },
+  "models": {
+    "minimax": {
+      "id": "MiniMax-M2.5",
+      "name": "MiniMax M2.5",
+      "provider": "alibaba",
+      "context": 131072,
+      "strengths": ["coding", "debugging", "fast-inference", "tool-use", "chat"],
+      "benchmarks": {
+        "swe-bench": 80.2,
+        "intelligence-index": 80
+      },
+      "aliases": ["minimax", "m2.5", "coding", "fast", "default"],
+      "enabled": true,
+      "default": true
+    },
+    "qwen": {
+      "id": "qwen3.5-plus",
+      "name": "Qwen 3.5 Plus",
+      "provider": "alibaba",
+      "context": 1048576,
+      "strengths": ["complex-reasoning", "science", "math", "large-context", "gpqa"],
+      "benchmarks": {
+        "swe-bench": 76.4,
+        "gpqa-diamond": 88.4,
+        "intelligence-index": 82
+      },
+      "aliases": ["qwen", "qwen3.5", "qwen3.5-plus", "reasoning", "science"],
+      "enabled": true,
+      "default": false
+    },
+    "kimi": {
+      "id": "kimi-k2.5",
+      "name": "Kimi K2.5",
+      "provider": "alibaba",
+      "context": 256000,
+      "strengths": ["vision", "image-analysis", "frontend", "ui", "agent-swarm", "browse-comp"],
+      "benchmarks": {
+        "swe-bench": 76.8,
+        "gpqa-diamond": 87.6,
+        "intelligence-index": 85,
+        "browse-comp": 78.4,
+        "ocrbench": 92.3
+      },
+      "aliases": ["kimi", "k2.5", "frontend", "ui", "vision"],
+      "enabled": true,
+      "default": false
+    }
+  },
+  "routing": {
+    "fallback": "minimax",
+    "categories": {
+      "heartbeat": {
+        "model": "minimax",
+        "priority": 100,
+        "keywords": ["heartbeat_ok", "check_reminders", "internal heartbeat"]
+      },
+      "vision": {
+        "model": "kimi",
+        "priority": 95,
+        "keywords": ["image", "pdf", "screenshot", "diagram", "chart", "graph", "visual", "picture", "photo"]
+      },
+      "frontend": {
+        "model": "kimi",
+        "priority": 90,
+        "keywords": ["css", "html", "component", "frontend", "react", "vue", "tailwind", "svelte", "styled", "layout", "responsive", "animation", "navbar", "modal", "tooltip", "dropdown", "theme", "dark mode"]
+      },
+      "complex": {
+        "model": "qwen",
+        "priority": 85,
+        "keywords": ["architecture", "system design", "explain", "explain why", "how does", "prove", "derive", "scientific", "mathematical", "theory", "hypothesis", "quantum", "physics", "chemistry", "biology", "algorithm", "complexity", "optimize", "trade-off"]
+      },
+      "coding": {
+        "model": "minimax",
+        "priority": 80,
+        "keywords": ["code", "fix", "debug", "bug", "error", "function", "api", "implement", "refactor", "test", "not working", "broken", "failing"]
+      },
+      "axiom": {
+        "model": "minimax",
+        "priority": 80,
+        "keywords": ["axiom", "start trading", "trading interface", "wallet tracker", "playwright", "cdp relay", "browser session"]
+      },
+      "simple": {
+        "model": "minimax",
+        "priority": 50,
+        "patterns": ["^\\s*(hi+|hello+|hey+|yo+|ok(?:ay)?|thanks?(?: you)?|ping|status|test(?:ing)?)[.!?\\s]*$"],
+        "thresholds": { "maxWords": 8, "maxTokens": 150 }
+      }
+    }
+  }
+}

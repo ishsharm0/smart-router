@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "2.1.0",
+  "name": "Minimal (2-Model)",
+  "description": "Bare minimum setup with 2 models: one for speed/coding, one for vision/reasoning. Best for simple setups or budget-conscious users.",
+  "provider": "any",
+  "pricing": {
+    "type": "flexible",
+    "details": "Works with any provider. Configure model IDs to match your setup."
+  },
+  "models": {
+    "fast": {
+      "id": "CHANGE_ME_FAST",
+      "name": "Fast Model (Coding/Chat)",
+      "provider": "configure-me",
+      "context": 100000,
+      "strengths": ["coding", "chat", "fast-inference", "tool-use"],
+      "benchmarks": {
+        "swe-bench": 75,
+        "intelligence-index": 75
+      },
+      "cost": { "input": 0, "output": 0, "unit": "per-1m-tokens" },
+      "aliases": ["fast", "default", "coding", "chat"],
+      "enabled": true,
+      "default": true
+    },
+    "smart": {
+      "id": "CHANGE_ME_SMART",
+      "name": "Smart Model (Vision/Reasoning)",
+      "provider": "configure-me",
+      "context": 200000,
+      "strengths": ["vision", "reasoning", "complex-tasks", "multimodal"],
+      "benchmarks": {
+        "swe-bench": 80,
+        "gpqa-diamond": 85,
+        "intelligence-index": 85
+      },
+      "cost": { "input": 0, "output": 0, "unit": "per-1m-tokens" },
+      "aliases": ["smart", "vision", "reasoning", "complex"],
+      "enabled": true,
+      "default": false
+    }
+  },
+  "routing": {
+    "fallback": "fast",
+    "categories": {
+      "vision": {
+        "model": "smart",
+        "priority": 95,
+        "keywords": ["image", "pdf", "screenshot", "diagram", "chart", "graph", "visual", "picture", "photo"]
+      },
+      "complex": {
+        "model": "smart",
+        "priority": 85,
+        "keywords": ["explain", "architecture", "system design", "scientific", "mathematical", "theory", "prove", "derive"]
+      },
+      "coding": {
+        "model": "fast",
+        "priority": 80,
+        "keywords": ["code", "fix", "debug", "bug", "error", "function", "api", "implement", "refactor", "test", "not working", "broken", "failing"]
+      },
+      "simple": {
+        "model": "fast",
+        "priority": 50,
+        "patterns": ["^\\s*(hi+|hello+|hey+|yo+|ok(?:ay)?|thanks?(?: you)?|ping|status|test(?:ing)?)[.!?\\s]*$"],
+        "thresholds": { "maxWords": 8, "maxTokens": 150 }
+      }
+    }
+  },
+  "setupGuide": {
+    "openrouter": {
+      "fast": "anthropic/claude-sonnet-4.6",
+      "smart": "google/gemini-3.1-pro-preview"
+    },
+    "alibaba": {
+      "fast": "MiniMax-M2.5",
+      "smart": "qwen3.5-plus"
+    },
+    "ollama": {
+      "fast": "llama3.1:8b",
+      "smart": "llama3.1:70b"
+    },
+    "instructions": "Replace CHANGE_ME_FAST and CHANGE_ME_SMART with model IDs from your provider."
+  }
+}
